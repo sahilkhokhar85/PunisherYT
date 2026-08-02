@@ -1,10 +1,11 @@
 from telegram import Update
 from telegram.ext import ApplicationBuilder, MessageHandler, ContextTypes, filters
 import requests
+import os
 import re
 import asyncio
 
-BOT_TOKEN = "8705142746:AAF1yUfMWe9jzj_akRSoNnIMcH6-jBBaGdM"
+BOT_TOKEN = os.environ["BOT_TOKEN"]
 
 # Fast session
 session = requests.Session()
