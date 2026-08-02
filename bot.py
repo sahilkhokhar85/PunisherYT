@@ -13,7 +13,7 @@ session = requests.Session()
 
 # Extract all YouTube video IDs
 def extract_video_ids(text):
-    pattern = r"(?:youtu\.be/|youtube\.com/watch\?v=|m\.youtube\.com/watch\?v=|youtube\.com/shorts/)([a-zA-Z0-9_-]{11})"
+    pattern = r"(?:youtu\.be/|youtube\.com/watch\?v=|m\.youtube\.com/watch\?v=|youtube\.com/shorts/|youtube\.com/live/)([a-zA-Z0-9_-]{11})"
     return list(dict.fromkeys(re.findall(pattern, text)))
 
 
@@ -38,7 +38,14 @@ def get_video_title(video_id):
 
 # Direct thumbnail URL
 def get_thumbnail(video_id):
-    return f"https://i.ytimg.com/vi/{video_id}/maxresdefault.jpg"
+    for res in ["maxresdefault", "sddefault", "hqdefault", "mqdefault"]:
+        url = f"https://i.ytimg.com/vi/{video_id}/{res}.jpg"
+        try:
+            if session.head(url, timeout=3).status_code == 200:
+                return url
+        except:
+            continue
+    return f"https://i.ytimg.com/vi/{video_id}/default.jpg"
 
 
 async def process_video(update, video_id):
@@ -92,7 +99,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 app = ApplicationBuilder().token(BOT_TOKEN).build()
 
 app.add_handler(
-    MessageHandler(filters.ALL, handle_message)
+    MessageHandler(filters.TEXT | filters.CAPTION, handle_message)
 )
 
 print("Bot running fast...")
